@@ -14,6 +14,9 @@ class ActorsScreen extends StatefulWidget {
 
 class _ActorsScreenState extends State<ActorsScreen> {
   List<Actor> allActors = [];
+  List<Actor> searchList = [];
+  bool isSearhing = false;
+  final _searchTextEditingController = TextEditingController();
 
   @override
   void initState() {
@@ -22,16 +25,20 @@ class _ActorsScreenState extends State<ActorsScreen> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _searchTextEditingController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Actors',
-          style: TextStyle(
-            color: myGrey,
-          ),
-        ),
+        leading:isSearching?ackButton(color:myGrey):SizedBox()
+      
+        title: isSearhing ? _buildSearchField() : _buildAppbarTitle(),
         backgroundColor: myYellow,
+        actions: buildAppbarActions(),
       ),
       body: BlocBuilder<ActorCubit, ActorState>(builder: (context, state) {
         if (state is ActorLoading) {
@@ -63,5 +70,80 @@ class _ActorsScreenState extends State<ActorsScreen> {
         }
       }),
     );
+  }
+
+  Widget _buildAppbarTitle() {
+    return Text(
+      'Actors',
+      style: TextStyle(
+        color: myGrey,
+      ),
+    );
+  }
+
+  List<Widget> buildAppbarActions() {
+    if (isSearhing) {
+      return [
+        IconButton(
+          onPressed: () {
+            _clearSearch();
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.clear,
+            color: myGrey,
+          ),
+        ),
+      ];
+    } else {
+      return [
+        IconButton(
+          onPressed: () {
+            _startSearch();
+          },
+          icon: Icon(
+            Icons.search,
+            color: myGrey,
+          ),
+        )
+      ];
+    }
+  }
+
+  _buildSearchField() => TextFormField(
+        controller: _searchTextEditingController,
+        cursorColor: Colors.black,
+        decoration: InputDecoration(
+          hintText: 'Find an actor...',
+          border: InputBorder.none,
+        ),
+        onChanged: (value) {
+          searchList = allActors
+              .where((element) =>
+                  element.name.toLowerCase().contains(value.toLowerCase()))
+              .toList();
+          setState(() {});
+        },
+      );
+
+  void _startSearch() {
+    ModalRoute.of(context)!
+        .addLocalHistoryEntry(LocalHistoryEntry(onRemove: _stopSearching));
+    setState(() {
+      isSearhing = true;
+    });
+  }
+
+  void _stopSearching() {
+    _clearSearch();
+    setState(() {
+      isSearhing = false;
+    });
+  }
+
+  void _clearSearch() {
+    setState(() {
+      _searchTextEditingController.clear();
+    });
   }
 }

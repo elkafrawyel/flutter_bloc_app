@@ -8,11 +8,11 @@ part 'actor_state.dart';
 class ActorCubit extends Cubit<ActorState> {
   final ActorsRepo actorsRepo;
   ActorCubit(this.actorsRepo) : super(ActorInitial());
-  getAllActors() {
+  getAllActors() async {
     emit(ActorLoading());
-    actorsRepo.getAllActors().then((actors) {
-      /// like update in getx
-      emit(ActorLoaded(actors));
-    });
+    List<Actor> actors = await actorsRepo.getAllActors();
+
+    /// like update in getx
+    emit(ActorLoaded(actors));
   }
 }

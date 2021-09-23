@@ -7,12 +7,7 @@
             "request": "launch",
             "type": "dart"
         },
-        {
-            "name": "flutter_bloc_app (profile mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile"
-        },
+        
         {
             "name": "Flutter",
             "program": "lib/main.dart",
